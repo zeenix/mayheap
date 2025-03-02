@@ -6,6 +6,7 @@
     missing_docs
 )]
 #![warn(unreachable_pub)]
+#![allow(clippy::result_unit_err, clippy::missing_safety_doc)]
 #![doc = include_str!("../README.md")]
 
 #[cfg(all(not(feature = "alloc"), not(feature = "heapless")))]
