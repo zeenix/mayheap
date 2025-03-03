@@ -86,8 +86,10 @@ impl<T, const N: usize> Vec<T, N> {
     }
 
     /// the current capacity of the vector.
-    pub const fn capacity(&self) -> usize {
-        N
+    ///
+    /// Note: Unlike, `heapless::vec::Vec::capacity`, this method is currently not `const`.
+    pub fn capacity(&self) -> usize {
+        self.0.capacity()
     }
 
     /// Clears the vector, removing all values.
