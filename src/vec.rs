@@ -24,6 +24,7 @@ impl<T, const N: usize> Vec<T, N> {
     ///
     /// Note: Unlike, `heapless::vec::Vec::new`, this method is currently not `const`.
     #[allow(clippy::reserve_after_initialization)]
+    #[inline]
     pub fn new() -> Self {
         let mut v = Inner::new();
         #[cfg(feature = "alloc")]
@@ -51,22 +52,26 @@ impl<T, const N: usize> Vec<T, N> {
     }
 
     /// Returns a raw pointer to the vector’s buffer.
+    #[inline]
     pub fn as_ptr(&self) -> *const T {
         self.0.as_ptr()
     }
 
     /// Returns a raw pointer to the vector’s buffer, which may be mutated through.
+    #[inline]
     pub fn as_mut_ptr(&mut self) -> *mut T {
         self.0.as_mut_ptr()
     }
 
     /// Extracts a slice containing the entire vector.
+    #[inline]
     pub fn as_slice(&self) -> &[T] {
         &self.0
     }
 
     /// Returns the contents of the vector as an array of length `M` if the length
     /// of the vector is exactly `M`, otherwise returns `Err(self)`.
+    #[inline]
     pub fn into_array<const M: usize>(self) -> Result<[T; M], Self> {
         #[cfg(feature = "alloc")]
         {
@@ -81,6 +86,7 @@ impl<T, const N: usize> Vec<T, N> {
     /// Extracts a mutable slice containing the entire vector.
     ///
     /// Equivalent to `&mut s[..]`.
+    #[inline]
     pub fn as_mut_slice(&mut self) -> &mut [T] {
         &mut self.0
     }
@@ -88,16 +94,19 @@ impl<T, const N: usize> Vec<T, N> {
     /// the current capacity of the vector.
     ///
     /// Note: Unlike, `heapless::vec::Vec::capacity`, this method is currently not `const`.
+    #[inline]
     pub fn capacity(&self) -> usize {
         self.0.capacity()
     }
 
     /// Clears the vector, removing all values.
+    #[inline]
     pub fn clear(&mut self) {
         self.0.clear();
     }
 
     /// Extends the vec from an iterator.
+    #[inline]
     pub fn extend<I>(&mut self, iter: I)
     where
         I: IntoIterator<Item = T>,
@@ -109,6 +118,7 @@ impl<T, const N: usize> Vec<T, N> {
     ///
     /// Iterates over the slice `other`, clones each element, and then appends
     /// it to this `Vec`. The `other` vector is traversed in-order.
+    #[inline]
     pub fn extend_from_slice(&mut self, other: &[T]) -> Result<(), ()>
     where
         T: Clone,
@@ -126,11 +136,13 @@ impl<T, const N: usize> Vec<T, N> {
     }
 
     /// Removes the last element from a vector and returns it, or `None` if it's empty
+    #[inline]
     pub fn pop(&mut self) -> Option<T> {
         self.0.pop()
     }
 
     /// Appends an `item` to the back of the collection
+    #[inline]
     pub fn push(&mut self, item: T) -> Result<(), T> {
         #[cfg(feature = "alloc")]
         {
@@ -149,11 +161,13 @@ impl<T, const N: usize> Vec<T, N> {
     /// # Safety
     ///
     /// This assumes the vec to have at least one element.
+    #[inline]
     pub unsafe fn pop_unchecked(&mut self) -> T {
         self.0.pop().unwrap()
     }
 
     /// Appends an `item` to the back of the collection.
+    #[inline]
     pub unsafe fn push_unchecked(&mut self, item: T) {
         #[cfg(feature = "alloc")]
         self.0.push(item);
@@ -162,6 +176,7 @@ impl<T, const N: usize> Vec<T, N> {
     }
 
     /// Shortens the vector, keeping the first `len` elements and dropping the rest.
+    #[inline]
     pub fn truncate(&mut self, len: usize) {
         self.0.truncate(len)
     }
@@ -173,6 +188,7 @@ impl<T, const N: usize> Vec<T, N> {
     /// new_len is less than len, the Vec is simply truncated.
     ///
     /// See also [`resize_default`](Self::resize_default).
+    #[inline]
     pub fn resize(&mut self, new_len: usize, value: T) -> Result<(), ()>
     where
         T: Clone,
@@ -196,6 +212,7 @@ impl<T, const N: usize> Vec<T, N> {
     /// If `new_len` is less than `len`, the `Vec` is simply truncated.
     ///
     /// See also [`resize`](Self::resize).
+    #[inline]
     pub fn resize_default(&mut self, new_len: usize) -> Result<(), ()>
     where
         T: Clone + Default,
@@ -204,6 +221,7 @@ impl<T, const N: usize> Vec<T, N> {
     }
 
     /// Removes an element from the vector and returns it.
+    #[inline]
     pub fn swap_remove(&mut self, index: usize) -> T {
         self.0.swap_remove(index)
     }
@@ -248,6 +266,7 @@ impl<T, const N: usize> Vec<T, N> {
 
     /// Inserts an element at position `index` within the vector, shifting all
     /// elements after it to the right.
+    #[inline]
     pub fn insert(&mut self, index: usize, element: T) -> Result<(), T> {
         #[cfg(feature = "alloc")]
         {
@@ -263,11 +282,13 @@ impl<T, const N: usize> Vec<T, N> {
 
     /// Removes and returns the element at position `index` within the vector,
     /// shifting all elements after it to the left.
+    #[inline]
     pub fn remove(&mut self, index: usize) -> T {
         self.0.remove(index)
     }
 
     /// Retains only the elements specified by the predicate.
+    #[inline]
     pub fn retain<F>(&mut self, mut f: F)
     where
         F: FnMut(&T) -> bool,
@@ -276,6 +297,7 @@ impl<T, const N: usize> Vec<T, N> {
     }
 
     /// Retains only the elements specified by the predicate, passing a mutable reference to it.
+    #[inline]
     pub fn retain_mut<F>(&mut self, mut f: F)
     where
         F: FnMut(&mut T) -> bool,
@@ -284,28 +306,33 @@ impl<T, const N: usize> Vec<T, N> {
     }
 
     /// Returns a reference to the underlying inner type.
+    #[inline]
     pub fn inner(&self) -> &Inner<T, N> {
         &self.0
     }
 
     /// Returns a mutable reference to the underlying inner type.
+    #[inline]
     pub fn inner_mut(&mut self) -> &mut Inner<T, N> {
         &mut self.0
     }
 
     /// Consumes the `Vec` and returns the inner type.
+    #[inline]
     pub fn into_inner(self) -> Inner<T, N> {
         self.0
     }
 }
 
 impl<T, const N: usize> Default for Vec<T, N> {
+    #[inline]
     fn default() -> Self {
         Self::new()
     }
 }
 
 impl<const N: usize> fmt::Write for Vec<u8, N> {
+    #[inline]
     fn write_str(&mut self, s: &str) -> fmt::Result {
         #[cfg(feature = "alloc")]
         {
@@ -323,24 +350,28 @@ impl<const N: usize> fmt::Write for Vec<u8, N> {
 impl<'a, T: Clone, const N: usize> TryFrom<&'a [T]> for Vec<T, N> {
     type Error = ();
 
+    #[inline]
     fn try_from(slice: &'a [T]) -> Result<Self, Self::Error> {
         Vec::from_slice(slice)
     }
 }
 
 impl<T, const N: usize> From<Vec<T, N>> for Inner<T, N> {
+    #[inline]
     fn from(vec: Vec<T, N>) -> Self {
         vec.0
     }
 }
 
 impl<T, const N: usize> From<Inner<T, N>> for Vec<T, N> {
+    #[inline]
     fn from(inner: Inner<T, N>) -> Self {
         Self(inner)
     }
 }
 
 impl<T, const N: usize> Extend<T> for Vec<T, N> {
+    #[inline]
     fn extend<I>(&mut self, iter: I)
     where
         I: IntoIterator<Item = T>,
@@ -353,6 +384,7 @@ impl<'a, T, const N: usize> Extend<&'a T> for Vec<T, N>
 where
     T: 'a + Copy,
 {
+    #[inline]
     fn extend<I>(&mut self, iter: I)
     where
         I: IntoIterator<Item = &'a T>,
@@ -365,6 +397,7 @@ impl<T, const N: usize> hash::Hash for Vec<T, N>
 where
     T: core::hash::Hash,
 {
+    #[inline]
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
         hash::Hash::hash(&self.0, state);
     }
@@ -374,6 +407,7 @@ impl<'a, T, const N: usize> IntoIterator for &'a Vec<T, N> {
     type Item = &'a T;
     type IntoIter = slice::Iter<'a, T>;
 
+    #[inline]
     fn into_iter(self) -> Self::IntoIter {
         self.iter()
     }
@@ -383,12 +417,14 @@ impl<'a, T, const N: usize> IntoIterator for &'a mut Vec<T, N> {
     type Item = &'a mut T;
     type IntoIter = slice::IterMut<'a, T>;
 
+    #[inline]
     fn into_iter(self) -> Self::IntoIter {
         self.iter_mut()
     }
 }
 
 impl<T, const N: usize> FromIterator<T> for Vec<T, N> {
+    #[inline]
     fn from_iter<I>(iter: I) -> Self
     where
         I: IntoIterator<Item = T>,
@@ -410,16 +446,19 @@ pub struct IntoIter<T, const N: usize>(
 
 impl<T, const N: usize> Iterator for IntoIter<T, N> {
     type Item = T;
-    #[cfg(feature = "alloc")]
+    #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        self.0.next()
-    }
-    #[cfg(not(feature = "alloc"))]
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.0.is_empty() {
-            return None;
+        #[cfg(feature = "alloc")]
+        {
+            self.0.next()
         }
-        Some(self.0.remove(0))
+        #[cfg(not(feature = "alloc"))]
+        {
+            if self.0.is_empty() {
+                return None;
+            }
+            Some(self.0.remove(0))
+        }
     }
 }
 
@@ -427,6 +466,7 @@ impl<T, const N: usize> Clone for IntoIter<T, N>
 where
     T: Clone,
 {
+    #[inline]
     fn clone(&self) -> Self {
         Self(self.0.clone())
     }
@@ -436,13 +476,16 @@ impl<T, const N: usize> IntoIterator for Vec<T, N> {
     type Item = T;
     type IntoIter = IntoIter<T, N>;
 
-    #[cfg(feature = "alloc")]
+    #[inline]
     fn into_iter(self) -> Self::IntoIter {
-        IntoIter(self.0.into_iter())
-    }
-    #[cfg(not(feature = "alloc"))]
-    fn into_iter(self) -> Self::IntoIter {
-        IntoIter(self.0)
+        #[cfg(feature = "alloc")]
+        {
+            IntoIter(self.0.into_iter())
+        }
+        #[cfg(not(feature = "alloc"))]
+        {
+            IntoIter(self.0)
+        }
     }
 }
 
@@ -450,6 +493,7 @@ impl<A, B, const N1: usize, const N2: usize> PartialEq<Vec<B, N2>> for Vec<A, N1
 where
     A: PartialEq<B>,
 {
+    #[inline]
     fn eq(&self, other: &Vec<B, N2>) -> bool {
         self.0.eq(&other.0)
     }
@@ -459,6 +503,7 @@ impl<A, B, const N: usize> PartialEq<[B]> for Vec<A, N>
 where
     A: PartialEq<B>,
 {
+    #[inline]
     fn eq(&self, other: &[B]) -> bool {
         self.0.eq(other)
     }
@@ -468,6 +513,7 @@ impl<A, B, const N: usize> PartialEq<Vec<A, N>> for [B]
 where
     A: PartialEq<B>,
 {
+    #[inline]
     fn eq(&self, other: &Vec<A, N>) -> bool {
         other.0.eq(self)
     }
@@ -477,6 +523,7 @@ impl<A, B, const N: usize> PartialEq<&[B]> for Vec<A, N>
 where
     A: PartialEq<B>,
 {
+    #[inline]
     fn eq(&self, other: &&[B]) -> bool {
         self.0.eq(*other)
     }
@@ -486,6 +533,7 @@ impl<A, B, const N: usize> PartialEq<Vec<A, N>> for &[B]
 where
     A: PartialEq<B>,
 {
+    #[inline]
     fn eq(&self, other: &Vec<A, N>) -> bool {
         other.0.eq(self)
     }
@@ -495,6 +543,7 @@ impl<A, B, const N: usize> PartialEq<&mut [B]> for Vec<A, N>
 where
     A: PartialEq<B>,
 {
+    #[inline]
     fn eq(&self, other: &&mut [B]) -> bool {
         self.0.eq(*other)
     }
@@ -504,6 +553,7 @@ impl<A, B, const N: usize> PartialEq<Vec<A, N>> for &mut [B]
 where
     A: PartialEq<B>,
 {
+    #[inline]
     fn eq(&self, other: &Vec<A, N>) -> bool {
         other.0.eq(self)
     }
@@ -513,6 +563,7 @@ impl<A, B, const N: usize, const M: usize> PartialEq<[B; M]> for Vec<A, N>
 where
     A: PartialEq<B>,
 {
+    #[inline]
     fn eq(&self, other: &[B; M]) -> bool {
         self.0.eq(other)
     }
@@ -522,6 +573,7 @@ impl<A, B, const N: usize, const M: usize> PartialEq<Vec<A, N>> for [B; M]
 where
     A: PartialEq<B>,
 {
+    #[inline]
     fn eq(&self, other: &Vec<A, N>) -> bool {
         other.0.eq(self)
     }
@@ -531,6 +583,7 @@ impl<A, B, const N: usize, const M: usize> PartialEq<&[B; M]> for Vec<A, N>
 where
     A: PartialEq<B>,
 {
+    #[inline]
     fn eq(&self, other: &&[B; M]) -> bool {
         self.0.eq(*other)
     }
@@ -540,6 +593,7 @@ impl<A, B, const N: usize, const M: usize> PartialEq<Vec<A, N>> for &[B; M]
 where
     A: PartialEq<B>,
 {
+    #[inline]
     fn eq(&self, other: &Vec<A, N>) -> bool {
         other.0.eq(self)
     }
@@ -552,6 +606,7 @@ impl<T, const N1: usize, const N2: usize> PartialOrd<Vec<T, N2>> for Vec<T, N1>
 where
     T: PartialOrd,
 {
+    #[inline]
     fn partial_cmp(&self, other: &Vec<T, N2>) -> Option<Ordering> {
         self.0.partial_cmp(&other.0)
     }
@@ -570,12 +625,14 @@ where
 impl<T, const N: usize> ops::Deref for Vec<T, N> {
     type Target = [T];
 
+    #[inline]
     fn deref(&self) -> &[T] {
         self.as_slice()
     }
 }
 
 impl<T, const N: usize> ops::DerefMut for Vec<T, N> {
+    #[inline]
     fn deref_mut(&mut self) -> &mut [T] {
         self.as_mut_slice()
     }
@@ -613,6 +670,7 @@ impl<T, const N: usize> Clone for Vec<T, N>
 where
     T: Clone,
 {
+    #[inline]
     fn clone(&self) -> Self {
         Self(self.0.clone())
     }
