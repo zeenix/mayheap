@@ -11,13 +11,11 @@ use core::{cmp::Ordering, fmt, hash, iter::FromIterator, ops, slice};
 /// When `heapless` feature is enabled, this is wrapper around `heapless::Vec`. Otherwise, this is
 /// a wrapper around `alloc::vec::Vec`, setting the initial capacity to `N`. All fallible
 /// operations are in reality infallible and all unsafe methods are safe in the latter case.
-#[cfg(feature = "alloc")]
 #[derive(Debug)]
-pub struct Vec<T, const N: usize>(alloc::vec::Vec<T>);
-#[cfg(not(feature = "alloc"))]
-#[allow(missing_docs)]
-#[derive(Debug)]
-pub struct Vec<T, const N: usize>(heapless::Vec<T, N>);
+pub struct Vec<T, const N: usize>(
+    #[cfg(feature = "alloc")] alloc::vec::Vec<T>,
+    #[cfg(not(feature = "alloc"))] heapless::Vec<T, N>,
+);
 
 impl<T, const N: usize> Vec<T, N> {
     /// Constructs a new, empty vector with a capacity of `N`.
@@ -377,14 +375,12 @@ impl<T, const N: usize> FromIterator<T> for Vec<T, N> {
 ///
 /// This struct is created by calling the `into_iter` method on [`Vec`][`Vec`].
 #[derive(Debug)]
-#[cfg(feature = "alloc")]
-pub struct IntoIter<T, const N: usize>(alloc::vec::IntoIter<T>);
-// FIXME: Once the fix for https://github.com/rust-embedded/heapless/issues/530 is released. We can
-// turn this into a wrapper around `heapless::vec::IntoIter`.
-#[cfg(not(feature = "alloc"))]
-#[allow(missing_docs)]
-#[derive(Debug)]
-pub struct IntoIter<T, const N: usize>(heapless::Vec<T, N>);
+pub struct IntoIter<T, const N: usize>(
+    #[cfg(feature = "alloc")] alloc::vec::IntoIter<T>,
+    // FIXME: Once the fix for https://github.com/rust-embedded/heapless/issues/530 is released. We
+    // can turn this into a wrapper around `heapless::vec::IntoIter`.
+    #[cfg(not(feature = "alloc"))] heapless::Vec<T, N>,
+);
 
 impl<T, const N: usize> Iterator for IntoIter<T, N> {
     type Item = T;
