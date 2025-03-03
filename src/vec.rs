@@ -23,15 +23,12 @@ impl<T, const N: usize> Vec<T, N> {
     /// Constructs a new, empty vector with a capacity of `N`.
     ///
     /// Note: Unlike, `heapless::vec::Vec::new`, this method is currently not `const`.
+    #[allow(clippy::reserve_after_initialization)]
     pub fn new() -> Self {
+        let mut v = Inner::new();
         #[cfg(feature = "alloc")]
-        {
-            Self(Inner::with_capacity(N))
-        }
-        #[cfg(not(feature = "alloc"))]
-        {
-            Self(Inner::new())
-        }
+        v.reserve(N);
+        Self(v)
     }
 
     /// Constructs a new vector with a capacity of `N` and fills it with the provided slice.
