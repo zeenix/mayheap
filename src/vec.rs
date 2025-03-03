@@ -8,19 +8,27 @@ use core::{cmp::Ordering, fmt, hash, iter::FromIterator, ops, slice};
 ///
 /// This provides the same API as `heapless::Vec`.
 ///
-/// When `heapless` feature is enabled, this is just an alias to `heapless::Vec`.
-///
-/// When `heapless` feature is disabled, this is a simple wrapper around `alloc::vec::Vec`,
-/// setting the initial capacity to `N`. All fallible operations are in reality infallible and all
-/// unsafe methods are safe.
+/// When `heapless` feature is enabled, this is wrapper around `heapless::Vec`. Otherwise, this is
+/// a wrapper around `alloc::vec::Vec`, setting the initial capacity to `N`. All fallible
+/// operations are in reality infallible and all unsafe methods are safe in the latter case.
+#[cfg(feature = "alloc")]
 pub struct Vec<T, const N: usize>(alloc::vec::Vec<T>);
+#[cfg(not(feature = "alloc"))]
+pub struct Vec<T, const N: usize>(heapless::Vec<T, N>);
 
 impl<T, const N: usize> Vec<T, N> {
     /// Constructs a new, empty vector with a capacity of `N`.
     ///
     /// Note: Unlike, `heapless::vec::Vec::new`, this method is currently not `const`.
     pub fn new() -> Self {
-        Self(alloc::vec::Vec::with_capacity(N))
+        #[cfg(feature = "alloc")]
+        {
+            Self(alloc::vec::Vec::with_capacity(N))
+        }
+        #[cfg(not(feature = "alloc"))]
+        {
+            Self(heapless::Vec::new())
+        }
     }
 
     /// Constructs a new vector with a capacity of `N` and fills it with the provided slice.
@@ -29,10 +37,17 @@ impl<T, const N: usize> Vec<T, N> {
     where
         T: Clone,
     {
-        let mut v = Self::new();
-        v.clone_from_slice(other);
+        #[cfg(feature = "alloc")]
+        {
+            let mut v = Self::new();
+            v.clone_from_slice(other);
 
-        Ok(v)
+            Ok(v)
+        }
+        #[cfg(not(feature = "alloc"))]
+        {
+            heapless::Vec::from_slice(other).map(Self)
+        }
     }
 
     /// Returns a raw pointer to the vector’s buffer.
@@ -53,7 +68,14 @@ impl<T, const N: usize> Vec<T, N> {
     /// Returns the contents of the vector as an array of length `M` if the length
     /// of the vector is exactly `M`, otherwise returns `Err(self)`.
     pub fn into_array<const M: usize>(self) -> Result<[T; M], Self> {
-        self.0.try_into().map_err(Self)
+        #[cfg(feature = "alloc")]
+        {
+            self.0.try_into().map_err(Self)
+        }
+        #[cfg(not(feature = "alloc"))]
+        {
+            self.0.into_array().map_err(Self)
+        }
     }
 
     /// Extracts a mutable slice containing the entire vector.
@@ -89,9 +111,16 @@ impl<T, const N: usize> Vec<T, N> {
     where
         T: Clone,
     {
-        self.0.extend_from_slice(other);
+        #[cfg(feature = "alloc")]
+        {
+            self.0.extend_from_slice(other);
 
-        Ok(())
+            Ok(())
+        }
+        #[cfg(not(feature = "alloc"))]
+        {
+            self.0.extend_from_slice(other)
+        }
     }
 
     /// Removes the last element from a vector and returns it, or `None` if it's empty
@@ -101,9 +130,16 @@ impl<T, const N: usize> Vec<T, N> {
 
     /// Appends an `item` to the back of the collection
     pub fn push(&mut self, item: T) -> Result<(), T> {
-        self.0.push(item);
+        #[cfg(feature = "alloc")]
+        {
+            self.0.push(item);
 
-        Ok(())
+            Ok(())
+        }
+        #[cfg(not(feature = "alloc"))]
+        {
+            self.0.push(item)
+        }
     }
 
     /// Removes the last element from a vector and returns it.
@@ -117,7 +153,10 @@ impl<T, const N: usize> Vec<T, N> {
 
     /// Appends an `item` to the back of the collection.
     pub unsafe fn push_unchecked(&mut self, item: T) {
-        self.0.push(item)
+        #[cfg(feature = "alloc")]
+        self.0.push(item);
+        #[cfg(not(feature = "alloc"))]
+        self.0.push_unchecked(item);
     }
 
     /// Shortens the vector, keeping the first `len` elements and dropping the rest.
@@ -136,9 +175,16 @@ impl<T, const N: usize> Vec<T, N> {
     where
         T: Clone,
     {
-        self.0.resize(new_len, value);
+        #[cfg(feature = "alloc")]
+        {
+            self.0.resize(new_len, value);
 
-        Ok(())
+            Ok(())
+        }
+        #[cfg(not(feature = "alloc"))]
+        {
+            self.0.resize(new_len, value)
+        }
     }
 
     /// Resizes the `Vec` in-place so that `len` is equal to `new_len`.
@@ -201,9 +247,16 @@ impl<T, const N: usize> Vec<T, N> {
     /// Inserts an element at position `index` within the vector, shifting all
     /// elements after it to the right.
     pub fn insert(&mut self, index: usize, element: T) -> Result<(), T> {
-        self.0.insert(index, element);
+        #[cfg(feature = "alloc")]
+        {
+            self.0.insert(index, element);
 
-        Ok(())
+            Ok(())
+        }
+        #[cfg(not(feature = "alloc"))]
+        {
+            self.0.insert(index, element)
+        }
     }
 
     /// Removes and returns the element at position `index` within the vector,
@@ -248,9 +301,16 @@ where
 
 impl<const N: usize> fmt::Write for Vec<u8, N> {
     fn write_str(&mut self, s: &str) -> fmt::Result {
-        self.0.extend_from_slice(s.as_bytes());
+        #[cfg(feature = "alloc")]
+        {
+            self.0.extend_from_slice(s.as_bytes());
 
-        Ok(())
+            Ok(())
+        }
+        #[cfg(not(feature = "alloc"))]
+        {
+            self.0.write_str(s)
+        }
     }
 }
 
@@ -315,7 +375,7 @@ impl<T, const N: usize> FromIterator<T> for Vec<T, N> {
     where
         I: IntoIterator<Item = T>,
     {
-        Self(<alloc::vec::Vec<T> as FromIterator<T>>::from_iter(iter))
+        Self(FromIterator::<T>::from_iter(iter))
     }
 }
 
@@ -323,12 +383,26 @@ impl<T, const N: usize> FromIterator<T> for Vec<T, N> {
 ///
 /// This struct is created by calling the `into_iter` method on [`Vec`][`Vec`].
 #[derive(Debug)]
+#[cfg(feature = "alloc")]
 pub struct IntoIter<T, const N: usize>(alloc::vec::IntoIter<T>);
+// FIXME: Once https://github.com/rust-embedded/heapless/issues/530 is fixed and released. We can
+// turn this into a wrapper around `heapless::vec::IntoIter`.
+#[derive(Debug)]
+#[cfg(not(feature = "alloc"))]
+pub struct IntoIter<T, const N: usize>(heapless::Vec<T, N>);
 
 impl<T, const N: usize> Iterator for IntoIter<T, N> {
     type Item = T;
+    #[cfg(feature = "alloc")]
     fn next(&mut self) -> Option<Self::Item> {
         self.0.next()
+    }
+    #[cfg(not(feature = "alloc"))]
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.0.is_empty() {
+            return None;
+        }
+        Some(self.0.remove(0))
     }
 }
 
@@ -345,8 +419,13 @@ impl<T, const N: usize> IntoIterator for Vec<T, N> {
     type Item = T;
     type IntoIter = IntoIter<T, N>;
 
+    #[cfg(feature = "alloc")]
     fn into_iter(self) -> Self::IntoIter {
         IntoIter(self.0.into_iter())
+    }
+    #[cfg(not(feature = "alloc"))]
+    fn into_iter(self) -> Self::IntoIter {
+        IntoIter(self.0)
     }
 }
 
