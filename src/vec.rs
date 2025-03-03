@@ -14,6 +14,7 @@ use core::{cmp::Ordering, fmt, hash, iter::FromIterator, ops, slice};
 #[cfg(feature = "alloc")]
 pub struct Vec<T, const N: usize>(alloc::vec::Vec<T>);
 #[cfg(not(feature = "alloc"))]
+#[allow(missing_docs)]
 pub struct Vec<T, const N: usize>(heapless::Vec<T, N>);
 
 impl<T, const N: usize> Vec<T, N> {
@@ -387,8 +388,9 @@ impl<T, const N: usize> FromIterator<T> for Vec<T, N> {
 pub struct IntoIter<T, const N: usize>(alloc::vec::IntoIter<T>);
 // FIXME: Once the fix for https://github.com/rust-embedded/heapless/issues/530 is released. We can
 // turn this into a wrapper around `heapless::vec::IntoIter`.
-#[derive(Debug)]
 #[cfg(not(feature = "alloc"))]
+#[allow(missing_docs)]
+#[derive(Debug)]
 pub struct IntoIter<T, const N: usize>(heapless::Vec<T, N>);
 
 impl<T, const N: usize> Iterator for IntoIter<T, N> {
