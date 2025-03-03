@@ -283,9 +283,22 @@ impl<T, const N: usize> Vec<T, N> {
     {
         self.0.retain_mut(f)
     }
-}
 
-// Trait implementations
+    /// Returns a reference to the underlying inner type.
+    pub fn inner(&self) -> &Inner<T, N> {
+        &self.0
+    }
+
+    /// Returns a mutable reference to the underlying inner type.
+    pub fn inner_mut(&mut self) -> &mut Inner<T, N> {
+        &mut self.0
+    }
+
+    /// Consumes the `Vec` and returns the inner type.
+    pub fn into_inner(self) -> Inner<T, N> {
+        self.0
+    }
+}
 
 impl<T, const N: usize> Default for Vec<T, N> {
     fn default() -> Self {
@@ -313,6 +326,18 @@ impl<'a, T: Clone, const N: usize> TryFrom<&'a [T]> for Vec<T, N> {
 
     fn try_from(slice: &'a [T]) -> Result<Self, Self::Error> {
         Vec::from_slice(slice)
+    }
+}
+
+impl<T, const N: usize> From<Vec<T, N>> for Inner<T, N> {
+    fn from(vec: Vec<T, N>) -> Self {
+        vec.0
+    }
+}
+
+impl<T, const N: usize> From<Inner<T, N>> for Vec<T, N> {
+    fn from(inner: Inner<T, N>) -> Self {
+        Self(inner)
     }
 }
 
