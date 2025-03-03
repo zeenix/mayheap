@@ -4,6 +4,11 @@
 
 use core::{cmp::Ordering, fmt, hash, iter::FromIterator, ops, slice};
 
+#[cfg(feature = "alloc")]
+type Inner<T, const N: usize> = alloc::vec::Vec<T>;
+#[cfg(not(feature = "alloc"))]
+type Inner<T, const N: usize> = heapless::Vec<T, N>;
+
 /// A contiguous growable array type.
 ///
 /// This provides the same API as `heapless::Vec`.
@@ -12,10 +17,7 @@ use core::{cmp::Ordering, fmt, hash, iter::FromIterator, ops, slice};
 /// a wrapper around `alloc::vec::Vec`, setting the initial capacity to `N`. All fallible
 /// operations are in reality infallible and all unsafe methods are safe in the latter case.
 #[derive(Debug)]
-pub struct Vec<T, const N: usize>(
-    #[cfg(feature = "alloc")] alloc::vec::Vec<T>,
-    #[cfg(not(feature = "alloc"))] heapless::Vec<T, N>,
-);
+pub struct Vec<T, const N: usize>(Inner<T, N>);
 
 impl<T, const N: usize> Vec<T, N> {
     /// Constructs a new, empty vector with a capacity of `N`.
@@ -24,11 +26,11 @@ impl<T, const N: usize> Vec<T, N> {
     pub fn new() -> Self {
         #[cfg(feature = "alloc")]
         {
-            Self(alloc::vec::Vec::with_capacity(N))
+            Self(Inner::with_capacity(N))
         }
         #[cfg(not(feature = "alloc"))]
         {
-            Self(heapless::Vec::new())
+            Self(Inner::new())
         }
     }
 
