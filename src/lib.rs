@@ -17,3 +17,6 @@ extern crate alloc;
 
 pub mod vec;
 pub use vec::Vec;
+
+pub mod string;
+pub use string::String;
