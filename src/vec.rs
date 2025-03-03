@@ -5,9 +5,9 @@
 use core::{cmp::Ordering, fmt, hash, iter::FromIterator, ops, slice};
 
 #[cfg(feature = "alloc")]
-type Inner<T, const N: usize> = alloc::vec::Vec<T>;
+pub(crate) type Inner<T, const N: usize> = alloc::vec::Vec<T>;
 #[cfg(not(feature = "alloc"))]
-type Inner<T, const N: usize> = heapless::Vec<T, N>;
+pub(crate) type Inner<T, const N: usize> = heapless::Vec<T, N>;
 
 /// A contiguous growable array type.
 ///
