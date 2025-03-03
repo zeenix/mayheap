@@ -12,9 +12,11 @@ use core::{cmp::Ordering, fmt, hash, iter::FromIterator, ops, slice};
 /// a wrapper around `alloc::vec::Vec`, setting the initial capacity to `N`. All fallible
 /// operations are in reality infallible and all unsafe methods are safe in the latter case.
 #[cfg(feature = "alloc")]
+#[derive(Debug)]
 pub struct Vec<T, const N: usize>(alloc::vec::Vec<T>);
 #[cfg(not(feature = "alloc"))]
 #[allow(missing_docs)]
+#[derive(Debug)]
 pub struct Vec<T, const N: usize>(heapless::Vec<T, N>);
 
 impl<T, const N: usize> Vec<T, N> {
@@ -288,15 +290,6 @@ impl<T, const N: usize> Vec<T, N> {
 impl<T, const N: usize> Default for Vec<T, N> {
     fn default() -> Self {
         Self::new()
-    }
-}
-
-impl<T, const N: usize> fmt::Debug for Vec<T, N>
-where
-    T: fmt::Debug,
-{
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        fmt::Debug::fmt(&self.0, f)
     }
 }
 
