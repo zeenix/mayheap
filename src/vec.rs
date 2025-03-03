@@ -385,7 +385,7 @@ impl<T, const N: usize> FromIterator<T> for Vec<T, N> {
 #[derive(Debug)]
 #[cfg(feature = "alloc")]
 pub struct IntoIter<T, const N: usize>(alloc::vec::IntoIter<T>);
-// FIXME: Once https://github.com/rust-embedded/heapless/issues/530 is fixed and released. We can
+// FIXME: Once the fix for https://github.com/rust-embedded/heapless/issues/530 is released. We can
 // turn this into a wrapper around `heapless::vec::IntoIter`.
 #[derive(Debug)]
 #[cfg(not(feature = "alloc"))]
