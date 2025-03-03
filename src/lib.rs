@@ -16,5 +16,4 @@ compile_error!("Either the `alloc` or `heapless` feature must be enabled");
 extern crate alloc;
 
 pub mod vec;
-#[cfg(feature = "alloc")]
 pub use vec::Vec;
