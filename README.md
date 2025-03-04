@@ -1,4 +1,4 @@
-# heapfull
+# mayheap
 
 This crate provides an abstraction over `alloc` and `heapless` crates. You'd use this crate where
 you'd normally use `alloc` but you want to also support `heapless` as an alternative for baremetal
