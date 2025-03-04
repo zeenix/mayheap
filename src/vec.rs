@@ -16,7 +16,7 @@ pub(crate) type Inner<T, const N: usize> = heapless::Vec<T, N>;
 /// When `heapless` feature is enabled, this is wrapper around `heapless::Vec`. Otherwise, this is
 /// a wrapper around `alloc::vec::Vec`, setting the initial capacity to `N`. All fallible
 /// operations are in reality infallible and all unsafe methods are safe in the latter case.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Vec<T, const N: usize>(Inner<T, N>);
 
@@ -430,7 +430,7 @@ impl<T, const N: usize> FromIterator<T> for Vec<T, N> {
 /// An iterator that moves out of an [`Vec`][`Vec`].
 ///
 /// This struct is created by calling the `into_iter` method on [`Vec`][`Vec`].
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct IntoIter<T, const N: usize>(
     #[cfg(feature = "alloc")] alloc::vec::IntoIter<T>,
     // FIXME: Once the fix for https://github.com/rust-embedded/heapless/issues/530 is released. We
@@ -453,16 +453,6 @@ impl<T, const N: usize> Iterator for IntoIter<T, N> {
             }
             Some(self.0.remove(0))
         }
-    }
-}
-
-impl<T, const N: usize> Clone for IntoIter<T, N>
-where
-    T: Clone,
-{
-    #[inline]
-    fn clone(&self) -> Self {
-        Self(self.0.clone())
     }
 }
 
@@ -657,15 +647,5 @@ impl<T, const N: usize> AsMut<[T]> for Vec<T, N> {
     #[inline]
     fn as_mut(&mut self) -> &mut [T] {
         self
-    }
-}
-
-impl<T, const N: usize> Clone for Vec<T, N>
-where
-    T: Clone,
-{
-    #[inline]
-    fn clone(&self) -> Self {
-        Self(self.0.clone())
     }
 }
