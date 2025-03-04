@@ -18,7 +18,7 @@ type Inner<const N: usize> = heapless::String<N>;
 /// This provides the same API as `heapless::String`.
 ///
 /// When `heapless` feature is enabled, this is wrapper around `heapless::String`. Otherwise, this
-/// is a wrapper around `alloc::vec::Vec`, setting the initial capacity to `N`. All fallible
+/// is a wrapper around `alloc::string::String`, setting the initial capacity to `N`. All fallible
 /// operations are in reality infallible and all unsafe methods are safe in the latter case.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
