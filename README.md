@@ -69,4 +69,4 @@ Either `alloc` or `heapless` feature must be enabled. If both are enabled, `allo
 
 ## License
 
-[MIT](LICENSE)
+MIT
