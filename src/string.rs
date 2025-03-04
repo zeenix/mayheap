@@ -69,8 +69,8 @@ impl<const N: usize> String<N> {
     ///
     /// This consumes the `String`, so we do not need to copy its contents.
     #[inline]
-    pub fn into_bytes(self) -> crate::vec::Inner<u8, N> {
-        self.0.into_bytes()
+    pub fn into_bytes(self) -> crate::Vec<u8, N> {
+        crate::Vec::from(self.0.into_bytes())
     }
 
     /// Extracts a string slice containing the entire string.
