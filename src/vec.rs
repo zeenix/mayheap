@@ -484,6 +484,18 @@ impl<T, const N: usize> IntoIterator for Vec<T, N> {
     }
 }
 
+#[cfg(not(feature = "alloc"))]
+impl<T, const N: usize> Drop for IntoIter<T, N> {
+    fn drop(&mut self) {
+        unsafe {
+            // Drop all the elements that have not been moved out of vec
+            core::ptr::drop_in_place(&mut self.vec.as_mut_slice()[self.next..]);
+            // Prevent dropping of other elements
+            self.vec.set_len(0);
+        }
+    }
+}
+
 impl<A, B, const N1: usize, const N2: usize> PartialEq<Vec<B, N2>> for Vec<A, N1>
 where
     A: PartialEq<B>,
