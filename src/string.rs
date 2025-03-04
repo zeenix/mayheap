@@ -21,6 +21,7 @@ type Inner<const N: usize> = heapless::String<N>;
 /// is a wrapper around `alloc::vec::Vec`, setting the initial capacity to `N`. All fallible
 /// operations are in reality infallible and all unsafe methods are safe in the latter case.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct String<const N: usize>(Inner<N>);
 
 impl<const N: usize> String<N> {

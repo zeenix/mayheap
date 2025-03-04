@@ -20,3 +20,29 @@ pub use vec::Vec;
 
 pub mod string;
 pub use string::String;
+
+#[cfg(test)]
+mod tests {
+    #[cfg(feature = "serde")]
+    #[test]
+    fn serde() {
+        let s = crate::String::<16>::try_from("hello").unwrap();
+        let json = serde_json::to_string(&s).unwrap();
+        assert_eq!(json, r#""hello""#);
+        let s2: crate::String<16> = serde_json::from_str(&json).unwrap();
+        assert_eq!(s, s2);
+
+        let v = crate::Vec::<_, 10>::from_slice(&[1, 2, 3, 4, 5]).unwrap();
+        let json = serde_json::to_string(&v).unwrap();
+        assert_eq!(json, r#"[1,2,3,4,5]"#);
+        let v2: crate::Vec<u8, 5> = serde_json::from_str(&json).unwrap();
+        assert_eq!(v, v2);
+
+        // Doesn't fit so should fail with `heapless` but not with `alloc`.
+        let res = serde_json::from_str::<crate::Vec<u8, 1>>(&json);
+        #[cfg(not(feature = "alloc"))]
+        res.unwrap_err();
+        #[cfg(feature = "alloc")]
+        res.unwrap();
+    }
+}

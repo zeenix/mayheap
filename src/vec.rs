@@ -17,6 +17,7 @@ pub(crate) type Inner<T, const N: usize> = heapless::Vec<T, N>;
 /// a wrapper around `alloc::vec::Vec`, setting the initial capacity to `N`. All fallible
 /// operations are in reality infallible and all unsafe methods are safe in the latter case.
 #[derive(Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Vec<T, const N: usize>(Inner<T, N>);
 
 impl<T, const N: usize> Vec<T, N> {
