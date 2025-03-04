@@ -431,12 +431,16 @@ impl<T, const N: usize> FromIterator<T> for Vec<T, N> {
 ///
 /// This struct is created by calling the `into_iter` method on [`Vec`][`Vec`].
 #[derive(Clone, Debug)]
-pub struct IntoIter<T, const N: usize>(
-    #[cfg(feature = "alloc")] alloc::vec::IntoIter<T>,
+pub struct IntoIter<T, const N: usize> {
+    #[cfg(feature = "alloc")]
+    iter: alloc::vec::IntoIter<T>,
     // FIXME: Once the fix for https://github.com/rust-embedded/heapless/issues/530 is released. We
     // can turn this into a wrapper around `heapless::vec::IntoIter`.
-    #[cfg(not(feature = "alloc"))] heapless::Vec<T, N>,
-);
+    #[cfg(not(feature = "alloc"))]
+    vec: heapless::Vec<T, N>,
+    #[cfg(not(feature = "alloc"))]
+    next: usize,
+}
 
 impl<T, const N: usize> Iterator for IntoIter<T, N> {
     type Item = T;
@@ -444,14 +448,21 @@ impl<T, const N: usize> Iterator for IntoIter<T, N> {
     fn next(&mut self) -> Option<Self::Item> {
         #[cfg(feature = "alloc")]
         {
-            self.0.next()
+            self.iter.next()
         }
         #[cfg(not(feature = "alloc"))]
         {
-            if self.0.is_empty() {
-                return None;
+            if self.next < self.vec.len() {
+                // SAFETY:
+                // * `next` is always less than `len`.
+                // * `<*const T>::add` takes `size_of::<T>()` into account so the pointer returned
+                //   by it will be aligned correctly (which is assumed by `ptr::read`).
+                let item = unsafe { (self.vec.as_ptr().add(self.next)).read() };
+                self.next += 1;
+                Some(item)
+            } else {
+                None
             }
-            Some(self.0.remove(0))
         }
     }
 }
@@ -462,13 +473,13 @@ impl<T, const N: usize> IntoIterator for Vec<T, N> {
 
     #[inline]
     fn into_iter(self) -> Self::IntoIter {
-        #[cfg(feature = "alloc")]
-        {
-            IntoIter(self.0.into_iter())
-        }
-        #[cfg(not(feature = "alloc"))]
-        {
-            IntoIter(self.0)
+        IntoIter {
+            #[cfg(feature = "alloc")]
+            iter: self.0.into_iter(),
+            #[cfg(not(feature = "alloc"))]
+            vec: self.0,
+            #[cfg(not(feature = "alloc"))]
+            next: 0,
         }
     }
 }
