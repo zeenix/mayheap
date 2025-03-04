@@ -196,6 +196,27 @@ impl<const N: usize> str::FromStr for String<N> {
     }
 }
 
+impl<const N: usize> From<String<N>> for Vec<u8, N> {
+    #[inline]
+    fn from(s: String<N>) -> Self {
+        s.into_bytes()
+    }
+}
+
+impl<const N: usize> From<String<N>> for Inner<N> {
+    #[inline]
+    fn from(s: String<N>) -> Self {
+        s.0
+    }
+}
+
+impl<const N: usize> From<Inner<N>> for String<N> {
+    #[inline]
+    fn from(s: Inner<N>) -> Self {
+        Self(s)
+    }
+}
+
 impl<const N: usize> iter::FromIterator<char> for String<N> {
     #[inline]
     fn from_iter<T: IntoIterator<Item = char>>(iter: T) -> Self {
