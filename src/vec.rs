@@ -39,17 +39,10 @@ impl<T, const N: usize> Vec<T, N> {
     where
         T: Clone,
     {
-        #[cfg(feature = "alloc")]
-        {
-            let mut v = Self::new();
-            v.clone_from_slice(other);
+        let mut v = Self::new();
+        v.extend_from_slice(other)?;
 
-            Ok(v)
-        }
-        #[cfg(not(feature = "alloc"))]
-        {
-            heapless::Vec::from_slice(other).map(Self)
-        }
+        Ok(v)
     }
 
     /// Returns a raw pointer to the vector’s buffer.
