@@ -1,4 +1,16 @@
-# mayheap
+<p align="center">
+  <a href="https://github.com/zeenix/mayheap/actions/workflows/rust.yml">
+    <img alt="Build Status" src="https://github.com/zeenix/mayheap/actions/workflows/rust.yml/badge.svg">
+  </a>
+  <a href="https://docs.rs/mayheap/">
+    <img alt="API Documentation" src="https://docs.rs/mayheap/badge.svg">
+  </a>
+  <a href="https://crates.io/crates/mayheap">
+    <img alt="crates.io" src="https://img.shields.io/crates/v/mayheap">
+  </a>
+</p>
+
+<h1 align="center">mayheap</h1>
 
 This crate provides an abstraction over `alloc` and `heapless` crates. You'd use this crate where
 you'd normally use `alloc` but you want to also support `heapless` as an alternative for baremetal
