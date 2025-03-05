@@ -82,3 +82,8 @@ Either `alloc` or `heapless` feature must be enabled. If both are enabled, `allo
 ## License
 
 MIT
+
+## TODO
+
+* Update to heapless' next release when it's out and remove `vec::IntoIter` manual implementation
+* `Box<T>`
