@@ -21,7 +21,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Check build with MSRV
         run: |
-          cargo --locked check
+          cargo --locked check --tests --features serde
+          cargo --locked check --tests --no-default-features --features heapless,serde
 
   fmt:
     runs-on: ubuntu-latest
@@ -74,7 +75,9 @@ jobs:
           toolchain: stable
       - uses: Swatinem/rust-cache@v2
       - name: Build and Test
-        run: cargo test
+        run: |
+          cargo --locked test --features serde
+          cargo --locked test --no-default-features --features heapless,serde
 
   doc_build:
     runs-on: ubuntu-latest
