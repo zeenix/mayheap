@@ -1,6 +1,6 @@
 [package]
 name = "mayheap"
-version = "0.1.1"
+version = "0.2.0"
 description = "An abtraction over alloc & heapless"
 repository = "https://github.com/zeenix/mayheap"
 edition = "2021"
