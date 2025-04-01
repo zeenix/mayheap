@@ -1,10 +1,6 @@
 //! A UTF-8–encoded, growable string.
 
-use core::{
-    cmp::Ordering,
-    fmt, hash, iter, ops,
-    str::{self, Utf8Error},
-};
+use core::{cmp::Ordering, fmt, hash, iter, ops, str};
 
 use crate::Vec;
 
@@ -42,15 +38,15 @@ impl<const N: usize> String<N> {
 
     /// Convert UTF-8 bytes into a `String`.
     #[inline]
-    pub fn from_utf8(vec: Vec<u8, N>) -> Result<Self, Utf8Error> {
+    pub fn from_utf8(vec: Vec<u8, N>) -> crate::Result<Self> {
         let res = Inner::from_utf8(vec.into_inner()).map(Self);
         #[cfg(feature = "alloc")]
         {
-            res.map_err(|e| e.utf8_error())
+            res.map_err(|e| e.utf8_error().into())
         }
         #[cfg(not(feature = "alloc"))]
         {
-            res
+            res.map_err(|e| e.into())
         }
     }
 
@@ -100,7 +96,7 @@ impl<const N: usize> String<N> {
 
     /// Appends a given string slice onto the end of this `String`.
     #[inline]
-    pub fn push_str(&mut self, string: &str) -> Result<(), ()> {
+    pub fn push_str(&mut self, string: &str) -> crate::Result<()> {
         #[cfg(feature = "alloc")]
         {
             self.0.push_str(string);
@@ -108,7 +104,9 @@ impl<const N: usize> String<N> {
         }
         #[cfg(not(feature = "alloc"))]
         {
-            self.0.push_str(string)
+            self.0
+                .push_str(string)
+                .map_err(|_| crate::Error::BufferOverflow)
         }
     }
 
@@ -122,7 +120,7 @@ impl<const N: usize> String<N> {
 
     /// Appends the given [`char`] to the end of this `String`.
     #[inline]
-    pub fn push(&mut self, c: char) -> Result<(), ()> {
+    pub fn push(&mut self, c: char) -> crate::Result<()> {
         #[cfg(feature = "alloc")]
         {
             self.0.push(c);
@@ -130,7 +128,7 @@ impl<const N: usize> String<N> {
         }
         #[cfg(not(feature = "alloc"))]
         {
-            self.0.push(c)
+            self.0.push(c).map_err(|_| crate::Error::BufferOverflow)
         }
     }
 
@@ -180,19 +178,21 @@ impl<const N: usize> Default for String<N> {
 }
 
 impl<'a, const N: usize> TryFrom<&'a str> for String<N> {
-    type Error = ();
+    type Error = crate::Error;
     #[inline]
     fn try_from(s: &'a str) -> Result<Self, Self::Error> {
-        <Self as core::str::FromStr>::from_str(s)
+        <Self as core::str::FromStr>::from_str(s).map_err(|_| crate::Error::BufferOverflow)
     }
 }
 
 impl<const N: usize> str::FromStr for String<N> {
-    type Err = ();
+    type Err = crate::Error;
 
     #[inline]
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Inner::from_str(s).map(Self).map_err(|_| ())
+        Inner::from_str(s)
+            .map(Self)
+            .map_err(|_| crate::Error::BufferOverflow)
     }
 }
 
@@ -352,7 +352,7 @@ impl<const N: usize> Ord for String<N> {
 macro_rules! impl_try_from_num {
     ($num:ty, $size:expr) => {
         impl<const N: usize> core::convert::TryFrom<$num> for String<N> {
-            type Error = ();
+            type Error = crate::Error;
             #[inline]
             fn try_from(s: $num) -> Result<Self, Self::Error> {
                 #[cfg(feature = "alloc")]
@@ -361,7 +361,9 @@ macro_rules! impl_try_from_num {
                 }
                 #[cfg(not(feature = "alloc"))]
                 {
-                    Inner::try_from(s).map(Self)
+                    Inner::try_from(s)
+                        .map(Self)
+                        .map_err(|_| crate::Error::BufferOverflow)
                 }
             }
         }
