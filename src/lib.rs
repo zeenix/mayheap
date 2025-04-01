@@ -21,6 +21,9 @@ pub use vec::Vec;
 pub mod string;
 pub use string::String;
 
+mod error;
+pub use error::{Error, Result};
+
 #[cfg(test)]
 mod tests {
     #[cfg(feature = "serde")]

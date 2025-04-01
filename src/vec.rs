@@ -35,7 +35,7 @@ impl<T, const N: usize> Vec<T, N> {
 
     /// Constructs a new vector with a capacity of `N` and fills it with the provided slice.
     #[inline]
-    pub fn from_slice(other: &[T]) -> Result<Self, ()>
+    pub fn from_slice(other: &[T]) -> crate::Result<Self>
     where
         T: Clone,
     {
@@ -113,7 +113,7 @@ impl<T, const N: usize> Vec<T, N> {
     /// Iterates over the slice `other`, clones each element, and then appends
     /// it to this `Vec`. The `other` vector is traversed in-order.
     #[inline]
-    pub fn extend_from_slice(&mut self, other: &[T]) -> Result<(), ()>
+    pub fn extend_from_slice(&mut self, other: &[T]) -> crate::Result<()>
     where
         T: Clone,
     {
@@ -125,7 +125,9 @@ impl<T, const N: usize> Vec<T, N> {
         }
         #[cfg(not(feature = "alloc"))]
         {
-            self.0.extend_from_slice(other)
+            self.0
+                .extend_from_slice(other)
+                .map_err(|_| crate::Error::BufferOverflow)
         }
     }
 
@@ -183,7 +185,7 @@ impl<T, const N: usize> Vec<T, N> {
     ///
     /// See also [`resize_default`](Self::resize_default).
     #[inline]
-    pub fn resize(&mut self, new_len: usize, value: T) -> Result<(), ()>
+    pub fn resize(&mut self, new_len: usize, value: T) -> crate::Result<()>
     where
         T: Clone,
     {
@@ -195,7 +197,9 @@ impl<T, const N: usize> Vec<T, N> {
         }
         #[cfg(not(feature = "alloc"))]
         {
-            self.0.resize(new_len, value)
+            self.0
+                .resize(new_len, value)
+                .map_err(|_| crate::Error::BufferOverflow)
         }
     }
 
@@ -207,7 +211,7 @@ impl<T, const N: usize> Vec<T, N> {
     ///
     /// See also [`resize`](Self::resize).
     #[inline]
-    pub fn resize_default(&mut self, new_len: usize) -> Result<(), ()>
+    pub fn resize_default(&mut self, new_len: usize) -> crate::Result<()>
     where
         T: Clone + Default,
     {
@@ -342,7 +346,7 @@ impl<const N: usize> fmt::Write for Vec<u8, N> {
 }
 
 impl<'a, T: Clone, const N: usize> TryFrom<&'a [T]> for Vec<T, N> {
-    type Error = ();
+    type Error = crate::Error;
 
     #[inline]
     fn try_from(slice: &'a [T]) -> Result<Self, Self::Error> {
