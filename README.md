@@ -32,8 +32,8 @@ use mayheap::{Vec, String};
 // Vec
 
 let mut vec = Vec::<_, 4>::new();
-vec.push(1);
-vec.push(2);
+vec.push(1).unwrap();
+vec.push(2).unwrap();
 
 assert_eq!(vec.len(), 2);
 assert_eq!(vec[0], 1);
