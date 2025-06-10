@@ -14,7 +14,7 @@ heapless = ["dep:heapless"]
 serde = ["dep:serde", "heapless?/serde"]
 
 [dependencies]
-heapless = { version = "0.8", optional = true }
+heapless = { git = "https://github.com/zeenix/heapless", rev = "4d9a1d35", optional = true }
 serde = { version = "1", default-features = false, features = [
     "derive",
 ], optional = true }
