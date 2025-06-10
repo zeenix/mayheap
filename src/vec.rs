@@ -448,33 +448,14 @@ pub struct IntoIter<T, const N: usize> {
     // FIXME: Once the fix for https://github.com/rust-embedded/heapless/issues/530 is released. We
     // can turn this into a wrapper around `heapless::vec::IntoIter`.
     #[cfg(not(feature = "alloc"))]
-    vec: heapless::Vec<T, N>,
-    #[cfg(not(feature = "alloc"))]
-    next: usize,
+    iter: heapless::vec::IntoIter<T, N, usize>,
 }
 
 impl<T, const N: usize> Iterator for IntoIter<T, N> {
     type Item = T;
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        #[cfg(feature = "alloc")]
-        {
-            self.iter.next()
-        }
-        #[cfg(not(feature = "alloc"))]
-        {
-            if self.next < self.vec.len() {
-                // SAFETY:
-                // * `next` is always less than `len`.
-                // * `<*const T>::add` takes `size_of::<T>()` into account so the pointer returned
-                //   by it will be aligned correctly (which is assumed by `ptr::read`).
-                let item = unsafe { (self.vec.as_ptr().add(self.next)).read() };
-                self.next += 1;
-                Some(item)
-            } else {
-                None
-            }
-        }
+        self.iter.next()
     }
 }
 
@@ -485,24 +466,7 @@ impl<T, const N: usize> IntoIterator for Vec<T, N> {
     #[inline]
     fn into_iter(self) -> Self::IntoIter {
         IntoIter {
-            #[cfg(feature = "alloc")]
             iter: self.0.into_iter(),
-            #[cfg(not(feature = "alloc"))]
-            vec: self.0,
-            #[cfg(not(feature = "alloc"))]
-            next: 0,
-        }
-    }
-}
-
-#[cfg(not(feature = "alloc"))]
-impl<T, const N: usize> Drop for IntoIter<T, N> {
-    fn drop(&mut self) {
-        unsafe {
-            // Drop all the elements that have not been moved out of vec
-            core::ptr::drop_in_place(&mut self.vec.as_mut_slice()[self.next..]);
-            // Prevent dropping of other elements
-            self.vec.set_len(0);
         }
     }
 }
