@@ -28,6 +28,12 @@ pub use string::String;
 mod error;
 pub use error::{Error, Result};
 
+#[cfg(any(
+    all(feature = "portable-atomic", feature = "heapless"),
+    feature = "alloc"
+))]
+pub mod boxed;
+
 #[cfg(test)]
 mod tests {
     #[cfg(feature = "serde")]
