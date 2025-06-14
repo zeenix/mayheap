@@ -12,12 +12,14 @@ default = ["alloc"]
 alloc = ["serde?/alloc"]
 heapless = ["dep:heapless"]
 serde = ["dep:serde", "heapless?/serde"]
+portable-atomic = ["dep:portable-atomic", "heapless?/portable-atomic"]
 
 [dependencies]
 heapless = { git = "https://github.com/zeenix/heapless", rev = "4d9a1d35", optional = true }
 serde = { version = "1", default-features = false, features = [
     "derive",
 ], optional = true }
+portable-atomic = { version = "1", optional = true }
 
 [dev-dependencies]
 serde_json = "1"
