@@ -15,6 +15,10 @@ compile_error!("Either the `alloc` or `heapless` feature must be enabled");
 #[cfg(feature = "alloc")]
 extern crate alloc;
 
+// Re-export `paste` for the macros.
+#[doc(hidden)]
+pub use paste;
+
 pub mod vec;
 pub use vec::Vec;
 
