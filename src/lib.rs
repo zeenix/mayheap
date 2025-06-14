@@ -12,12 +12,13 @@
 #[cfg(all(not(feature = "alloc"), not(feature = "heapless")))]
 compile_error!("Either the `alloc` or `heapless` feature must be enabled");
 
-#[cfg(feature = "alloc")]
-extern crate alloc;
-
-// Re-export `paste` for the macros.
+// Re-exports for the macros.
 #[doc(hidden)]
-pub use paste;
+pub mod reexports {
+    #[cfg(feature = "alloc")]
+    pub extern crate alloc;
+    pub use paste;
+}
 
 pub mod vec;
 pub use vec::Vec;
@@ -27,6 +28,12 @@ pub use string::String;
 
 mod error;
 pub use error::{Error, Result};
+
+#[cfg(any(
+    all(feature = "portable-atomic", feature = "heapless"),
+    feature = "alloc"
+))]
+pub mod boxed;
 
 #[cfg(test)]
 mod tests {
