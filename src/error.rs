@@ -28,7 +28,7 @@ impl core::fmt::Display for Error {
                 write!(f, "Attempted to grow a collection beyond its capacity")
             }
             Error::Utf8Error(err) => {
-                write!(f, "Invalid UTF-8 sequence: {}", err)
+                write!(f, "Invalid UTF-8 sequence: {err}")
             }
         }
     }
