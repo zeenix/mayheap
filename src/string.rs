@@ -5,7 +5,7 @@ use core::{cmp::Ordering, fmt, hash, iter, ops, str};
 use crate::Vec;
 
 #[cfg(feature = "alloc")]
-type Inner<const N: usize> = alloc::string::String;
+type Inner<const N: usize> = crate::reexports::alloc::string::String;
 #[cfg(not(feature = "alloc"))]
 type Inner<const N: usize> = heapless::String<N>;
 
@@ -357,7 +357,9 @@ macro_rules! impl_try_from_num {
             fn try_from(s: $num) -> Result<Self, Self::Error> {
                 #[cfg(feature = "alloc")]
                 {
-                    Ok(Self(alloc::string::ToString::to_string(&s)))
+                    Ok(Self(crate::reexports::alloc::string::ToString::to_string(
+                        &s,
+                    )))
                 }
                 #[cfg(not(feature = "alloc"))]
                 {
