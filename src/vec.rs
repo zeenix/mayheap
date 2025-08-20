@@ -361,6 +361,13 @@ impl<T, const N: usize> From<Vec<T, N>> for Inner<T, N> {
     }
 }
 
+impl<T, const N: usize> From<[T; N]> for Vec<T, N> {
+    #[inline]
+    fn from(array: [T; N]) -> Self {
+        Self(Inner::from(array))
+    }
+}
+
 impl<T, const N: usize> From<Inner<T, N>> for Vec<T, N> {
     #[inline]
     fn from(inner: Inner<T, N>) -> Self {
