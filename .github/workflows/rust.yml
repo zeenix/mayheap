@@ -77,7 +77,10 @@ jobs:
       - name: Build and Test
         run: |
           cargo --locked test --features serde
+          # Test `heapless` backend
           cargo --locked test --no-default-features --features heapless,serde
+          # Test `heapless` backend with `portable-atomic` enabled (enables `boxed` module)
+          cargo --locked test --no-default-features --features heapless,serde,portable-atomic
 
   doc_build:
     runs-on: ubuntu-latest
