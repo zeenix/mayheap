@@ -17,7 +17,6 @@ type Inner<const N: usize> = heapless::String<N>;
 /// is a wrapper around `alloc::string::String`, setting the initial capacity to `N`. All fallible
 /// operations are in reality infallible and all unsafe methods are safe in the latter case.
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct String<const N: usize>(Inner<N>);
 
 impl<const N: usize> String<N> {
@@ -381,3 +380,23 @@ impl_try_from_num!(u8, 3);
 impl_try_from_num!(u16, 5);
 impl_try_from_num!(u32, 10);
 impl_try_from_num!(u64, 20);
+
+#[cfg(feature = "serde")]
+impl<'de, const N: usize> serde_core::Deserialize<'de> for String<N> {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde_core::Deserializer<'de>,
+    {
+        Inner::deserialize(deserializer).map(Self)
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<const N: usize> serde_core::Serialize for String<N> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde_core::Serializer,
+    {
+        self.0.serialize(serializer)
+    }
+}
