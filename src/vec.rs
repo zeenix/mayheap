@@ -17,7 +17,6 @@ pub(crate) type Inner<T, const N: usize> = heapless::Vec<T, N>;
 /// a wrapper around `alloc::vec::Vec`, setting the initial capacity to `N`. All fallible
 /// operations are in reality infallible and all unsafe methods are safe in the latter case.
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Vec<T, const N: usize>(Inner<T, N>);
 
 impl<T, const N: usize> Vec<T, N> {
@@ -645,5 +644,31 @@ impl<T, const N: usize> AsMut<[T]> for Vec<T, N> {
     #[inline]
     fn as_mut(&mut self) -> &mut [T] {
         self
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<T, const N: usize> serde_core::Serialize for Vec<T, N>
+where
+    T: serde_core::Serialize,
+{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde_core::Serializer,
+    {
+        self.0.serialize(serializer)
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de, T, const N: usize> serde_core::Deserialize<'de> for Vec<T, N>
+where
+    T: serde_core::Deserialize<'de>,
+{
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde_core::Deserializer<'de>,
+    {
+        Inner::deserialize(deserializer).map(Self)
     }
 }

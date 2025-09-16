@@ -9,16 +9,14 @@ license = "MIT"
 
 [features]
 default = ["alloc"]
-alloc = ["serde?/alloc"]
+alloc = ["serde_core?/alloc"]
 heapless = ["dep:heapless"]
-serde = ["dep:serde", "heapless?/serde"]
+serde = ["dep:serde_core", "heapless?/serde"]
 portable-atomic = ["dep:portable-atomic", "heapless?/portable-atomic"]
 
 [dependencies]
 heapless = { version = "0.9", optional = true }
-serde = { version = "1", default-features = false, features = [
-    "derive",
-], optional = true }
+serde_core = { version = "1", default-features = false, optional = true }
 portable-atomic = { version = "1", optional = true }
 paste = "1.0"
 
